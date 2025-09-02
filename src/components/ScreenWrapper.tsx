@@ -1,30 +1,68 @@
-import { SafeAreaView, StyleSheet, View, Platform, StatusBar } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, ViewStyle } from 'react-native';
+import { useThemeContext } from '../context/ThemeContext';
+import { useResponsive } from '../utils/responsive';
+import SafeAreaWrapper from './SafeAreaWrapper';
 
-type ScreenWrapperProps = {
+interface ScreenWrapperProps {
   children: React.ReactNode;
-  style?: object;
-  isHome?:Boolean;
-};
+  style?: ViewStyle;
+  backgroundColor?: string;
+  padding?: boolean;
+  safeArea?: boolean;
+  statusBarStyle?: 'light-content' | 'dark-content';
+  testID?: string;
+}
 
-const ScreenWrapper: React.FC<ScreenWrapperProps> = ({ children, style, isHome = false }) => {
+const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
+  children,
+  style,
+  backgroundColor,
+  padding = true,
+  safeArea = true,
+  statusBarStyle,
+  testID,
+}) => {
+  const { theme, isDarkMode } = useThemeContext();
+  const { getSafePadding } = useResponsive();
+  
+  const defaultBackgroundColor = backgroundColor || 
+    (isDarkMode ? theme.colors.neutral[900] : theme.colors.neutral[50]);
+  
+  const contentStyle = [
+    styles.content,
+    { backgroundColor: defaultBackgroundColor },
+    padding && { paddingHorizontal: getSafePadding },
+    style,
+  ];
+
+  if (safeArea) {
+    return (
+      <SafeAreaWrapper
+        backgroundColor={defaultBackgroundColor}
+        statusBarStyle={statusBarStyle}
+        testID={testID}
+      >
+        <View style={contentStyle}>
+          {children}
+        </View>
+      </SafeAreaWrapper>
+    );
+  }
+
   return (
-    <SafeAreaView style={[styles.safeArea, style]}>
-      <View style={styles.content}>
-        {children}
-      </View>
-    </SafeAreaView>
+    <View style={[styles.container, contentStyle]} testID={testID}>
+      {children}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   content: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 20 : 20,
-    // paddingHorizontal: 20,
   },
 });
 

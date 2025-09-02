@@ -1,24 +1,31 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
+ * Bedtime Stories App
+ * Main App component with authentication and navigation
  */
 
-import { StyleSheet} from 'react-native';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import RootStack from './src/navigation/stackNavigation';
+import { AppProvider } from './src/context/AppProvider';
+import { 
+  RootNavigator, 
+  navigationRef, 
+  linkingConfig, 
+  NavigationListeners 
+} from './src/navigation';
 
 function App() {
   return (
-    <NavigationContainer>
-      <RootStack/>
-    </NavigationContainer>
+    <AppProvider>
+      <NavigationContainer
+        ref={navigationRef}
+        linking={linkingConfig}
+        onStateChange={NavigationListeners.onStateChange}
+        onReady={NavigationListeners.onReady}
+      >
+        <RootNavigator />
+      </NavigationContainer>
+    </AppProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  
-});
 
 export default App;
